@@ -6,34 +6,32 @@
 #include <string.h>
 
 typedef struct Timer {
+	double display;
 	int running;
-	struct timespec begin;
-	struct timespec end;
+	timespec begin;
+	timespec end;
 } Timer;
 Timer *timers;
 void timer_init(int n) {
-
-//	printf("|timer_init|");	
 	timers = malloc(sizeof(Timer) * n);
 	int i;
 	for (i=0;i<n;i++){
 		timers[i].running=0;
-		struct timespec temp;
+		timespec temp;
 		clock_gettime(CLOCK_MONOTONIC, &temp);
+		timers[i].display = 0.0;
 		timers[i].begin = temp;
 		timers[i].end = temp;
 	}
 }
 
 void timer_finalize() {
-//	printf("|timer_finalize|");	
 	free(timers);
 }
 
 void timer_start(int idx){
-//	printf("|timer_start|");	
 	if (timers[idx].running!=1) {
-		struct timespec temp;
+		timespec temp;
 		clock_gettime(CLOCK_MONOTONIC, &temp);
 		timers[idx].begin = temp;
 		timers[idx].running = 1;
@@ -41,32 +39,34 @@ void timer_start(int idx){
 }
 
 void timer_stop(int idx) {
-//	printf("|timer_stop|");	
 	if (timers[idx].running!=0) {
-		struct timespec temp;
+		timespec temp;
 		clock_gettime(CLOCK_MONOTONIC, &temp);
 		timers[idx].end = temp;
 		timers[idx].running = 0;
+		timers[idx].display = getTimeDiff(timers[idx].end, timers[idx].begin);	
 	}
 }
 
+double getTimeDiff(timespec t1, timespec t2) {
+	return (double) ((double)t1.tv_sec-(double)t2.tv_sec + (double) pow(10, -9) * ((double)t1.tv_nsec-(double)t2.tv_nsec));
+}
+
+
+
 double timer_read(int idx) {
-	double time;
-	if(timers[idx].running == 0) {
-		time = timers[idx].end.tv_sec-timers[idx].begin.tv_sec + pow(10,-9) *(timers[idx].end.tv_nsec-timers[idx].begin.tv_nsec);	
-	} else if (timers[idx].running == 1) {
-		struct timespec tempCurr;
-		clock_gettime(CLOCK_MONOTONIC, &tempCurr);
-		time =  tempCurr.tv_sec-timers[idx].begin.tv_sec + pow(10, -9) * (tempCurr.tv_nsec-timers[idx].begin.tv_nsec);	
+	if(timers[idx].running == 1) {
+		timespec temp;
+		clock_gettime(CLOCK_MONOTONIC, &temp);
+		timers[idx].display = getTimeDiff(temp, timers[idx].begin);
 	}	
-//	printf("%lf", time);
-	return time;
+	return timers[idx].display;
 }
 
 void timer_reset(int idx) {
-//	printf("|timer_reset|");
 	timers[idx].running=0;
-	struct timespec tempbegin, tempend;
+	timers[idx].display=0;
+	timespec tempbegin, tempend;
 	clock_gettime(CLOCK_MONOTONIC,&tempbegin);
 	clock_gettime(CLOCK_MONOTONIC,&tempend);
 	timers[idx].begin = tempbegin;
