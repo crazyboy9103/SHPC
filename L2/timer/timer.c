@@ -13,7 +13,7 @@ typedef struct Timer {
 Timer *timers;
 void timer_init(int n) {
 
-	printf("|timer_init|");	
+//	printf("|timer_init|");	
 	timers = malloc(sizeof(Timer) * n);
 	int i;
 	for (i=0;i<n;i++){
@@ -26,30 +26,28 @@ void timer_init(int n) {
 }
 
 void timer_finalize() {
-	printf("|timer_finalize|");	
+//	printf("|timer_finalize|");	
 	free(timers);
 }
 
 void timer_start(int idx){
-	printf("|timer_start|");	
+//	printf("|timer_start|");	
 	if (timers[idx].running!=1) {
 		struct timespec temp;
 		clock_gettime(CLOCK_MONOTONIC, &temp);
 		timers[idx].begin = temp;
 		timers[idx].running = 1;
 	} 
-	return;
 }
 
 void timer_stop(int idx) {
-	printf("|timer_stop|");	
+//	printf("|timer_stop|");	
 	if (timers[idx].running!=0) {
 		struct timespec temp;
 		clock_gettime(CLOCK_MONOTONIC, &temp);
 		timers[idx].end = temp;
 		timers[idx].running = 0;
 	}
-	return;
 }
 
 double timer_read(int idx) {
@@ -61,12 +59,12 @@ double timer_read(int idx) {
 		clock_gettime(CLOCK_MONOTONIC, &tempCurr);
 		time =  tempCurr.tv_sec-timers[idx].begin.tv_sec + pow(10, -9) * (tempCurr.tv_nsec-timers[idx].begin.tv_nsec);	
 	}	
-	printf("%lf", time);
+//	printf("%lf", time);
 	return time;
 }
 
 void timer_reset(int idx) {
-	printf("|timer_reset|");
+//	printf("|timer_reset|");
 	timers[idx].running=0;
 	struct timespec tempbegin, tempend;
 	clock_gettime(CLOCK_MONOTONIC,&tempbegin);
